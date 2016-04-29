@@ -44,23 +44,37 @@ function code_line(){
 }
 
 function online(){
-  who | awk '{print $1}' | uniq
+  printf "Username:"
+  while read username; do
+    found=$(who | awk -v "user=$username" '{if (user == $1) print $1}')
+    if [[ -z $found ]] then
+      echo "$found is offline"
+    else
+      echo "$found is online"
+    fi
+  done;
 }
 
-if ! type "service" > /dev/null; then
+if type "service" > /dev/null; then
   function services(){
     printf "<service> "
     while read action service; do
       service $service $action
     done
   }
-else if ! type "systemctl" > /dev/null; then
+fi
+if type "systemctl" > /dev/null; then
   function services(){
     printf "<systemctl>"
     while read action service; do
-      service $service $action
+      systemctl $action $service
     done
   }
+fi
+if ! type "services" > /dev/null; then
+function services(){
+  echo "system not supported"
+}
 fi
 
 function menu(){
@@ -76,6 +90,11 @@ function menu(){
 }
 
 function main(){
+  if [[ $UID != 0 ]]; then
+      echo "Please run this script with sudo:"
+      echo "sudo $0 $*"
+      exit 1
+  fi;
   menu
   while read i; do
     case $i in
@@ -92,20 +111,16 @@ function main(){
       online
       ;;
       5)
-      check_service
+      services
       ;;
       6)
-      exit 0;
+      exit 0
+      ;;
       "*")
       echo "喵喵喵 ?"
       ;;
-    esac
+    esac;
+    menu
   done;
 }
-
-if [[ $UID != 0 ]]; then
-    echo "Please run this script with sudo:"
-    echo "sudo $0 $*"
-    exit 1
-fi
 main
