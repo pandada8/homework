@@ -19,27 +19,30 @@
 function disk(){
   printf "$(tput bold)$(tput smul)Name$(tput rmul)\t$(tput smul)Folder$(tput rmul)\t$(tput smul)Size$(tput rmul)\n$(tput sgr0)"
   grep -v "^#" /etc/passwd | awk -F: '{if ($6 !~ "/var|/bin|/proc|/etc|/dev|/srv" && $6 != "/") {print $1, $6}}' | while read -r line; do
+    local name
     name=("${(@s/ /)line}");
-    printf "%s\t%s\t" $name[1] $name[3]
-    printf "%s\n" $(du -sh $name[3] 2>/dev/null | awk -F "\t" '{print $1}');
+    printf "%s\t%s\t" $name[1] $name[2]
+    du -sh $name[2] 2>/dev/null | awk -F "\t" '{print $1}';
   done;
 }
 
 function max_file(){
   printf "$(tput bold)$(tput smul)Name$(tput rmul)\t$(tput smul)Size$(tput rmul)\t$(tput smul)MaxFile$(tput rmul)\n$(tput sgr0)"
   grep -v "^#" /etc/passwd | awk -F: '{if ($6 !~ "/var|/bin|/proc|/etc|/dev|/srv" && $6 != "/") {print $1, $6}}' | while read -r line; do
+    local name
     name=("${(@s/ /)line}");
     printf "%s\t" $name[1]
-    printf "%s\n" $(du $name[3] 2>/dev/null | awk -v max=0 -F "\t" '{if($1>max){want=$2; max=$1}}END{print max, want}');
+    du $name[2] 2>/dev/null | awk -v max=0 -F "\t" '{if($1>max){want=$2; max=$1}}END{print max, want}';
   done;
 }
 
 function code_line(){
   printf "$(tput bold)$(tput smul)Name$(tput rmul)\t$(tput smul)Lines$(tput rmul)\n$(tput sgr0)"
   grep -v "^#" /etc/passwd | awk -F: '{if ($6 !~ "/var|/bin|/proc|/etc|/dev|/srv" && $6 != "/") {print $1, $6}}' | while read -r line; do
+    local name
     name=("${(@s/ /)line}");
     printf "%s\t" $name[1]
-    ag --cpp --nonumbers "^" $name[3] | awk -F: 'sum=0 {sum += $2} END {print sum}'
+    ag --cpp --nonumbers "^" $name[2] | awk -F: 'sum=0 {sum += $2} END {print sum}'
   done;
 }
 
