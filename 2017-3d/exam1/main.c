@@ -33,6 +33,17 @@ void drawLine() {
 		}
 	glEnd();
 
+	glColor3f(1.0,1.0,0);
+	glBegin(GL_LINE_STRIP);
+		for(t=0.0;t<=2*PI;t+=0.0002)
+		{
+			x=(a*sin(c*t) + b) * cos(t);
+			y=(a*sin(c*t) + b ) * sin(t);
+			z=a * cos(c*t);
+			glVertex3f(x,y,z);
+		}
+	glEnd();
+
 	glColor3f(1.0,1.0,1.0);
 	glBegin(GL_LINES);  //建立坐标轴
 		glVertex3f(0,0,0);
